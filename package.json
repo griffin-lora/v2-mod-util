@@ -1,0 +1,12 @@
+{
+  "name": "v2-mod-util",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bmp-js": "^0.1.0",
+    "fs-extra": "^8.1.0",
+    "get-pixels": "^3.3.2",
+    "terminal-kit": "^1.32.3"
+  }
+}
