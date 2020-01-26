@@ -103,4 +103,4 @@ dist
 # TernJS port file
 .tern-port
 
-.v2-mod-util.exe
+v2-mod-util.exe
