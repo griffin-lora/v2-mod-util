@@ -63,6 +63,9 @@ module.exports = class CommandLine {
                 return require(`./programs/${program}`)(this, ...args)
             } catch(err) {
                 terminal.red(err + "\n")
+                return new Promise((resolve) => {
+                    resolve()
+                })
             }
         } else {
             terminal.red(`The program ${program} does not exist.`)
