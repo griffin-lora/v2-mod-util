@@ -1,17 +1,17 @@
 const { terminal } = require("terminal-kit")
 
 const programs = {
-    help: true,
-    open_mod: true,
-    save_mod: true,
-    set_province_owner: true,
-    set_province_core: true,
-    set_province_owner_map: true,
-    set_province_core_map: true,
-    get_province_data: true,
-    create_mod: true,
-    create_province_owner_map: true,
-    create_province_core_map: true,
+    help: require("./programs/help"),
+    open_mod: require("./programs/open_mod"),
+    save_mod: require("./programs/save_mod"),
+    set_province_owner: require("./programs/set_province_owner"),
+    set_province_core: require("./programs/set_province_core"),
+    set_province_owner_map: require("./programs/set_province_owner_map"),
+    set_province_core_map: require("./programs/set_province_core_map"),
+    get_province_data: require("./programs/get_province_data"),
+    create_mod: require("./programs/create_mod"),
+    create_province_owner_map: require("./programs/create_province_owner_map"),
+    create_province_core_map: require("./programs/create_province_core_map"),
 }
 
 module.exports = class CommandLine {
@@ -60,7 +60,7 @@ module.exports = class CommandLine {
     execute(program, ...args) {
         if (programs[program]) {
             try {
-                return require(`./programs/${program}`)(this, ...args)
+                return programs[program](this, ...args)
             } catch(err) {
                 terminal.red(err + "\n")
                 return new Promise((resolve) => {
