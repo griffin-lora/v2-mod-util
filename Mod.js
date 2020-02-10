@@ -1,5 +1,6 @@
 const fs = require("fs")
-const parser = require("./parser")
+const Bespoke = require("./Bespoke")
+const CSV = require("./CSV")
 const Province = require("./Province")
 const Country = require("./Country")
 
@@ -16,10 +17,10 @@ module.exports = class Mod {
     constructor(name, path) {
         this.name = name
         this.path = path
-        this.definitionString = fs.readFileSync(`${path}/map/definition.csv`).toString()
-        this.definitions = parser.parseCSV(this.definitionString, ";", "int", "int", "int", "int")
-        this.countryDefinitionString = fs.readFileSync(`${path}/common/countries.txt`).toString()
-        this.countryDefinitions = parser.parseBespoke(this.countryDefinitionString)
+        this.definitionString = fs.readFileSync(`${path}/map/definition.csv`, "utf-8").toString()
+        this.definitions = CSV.parseCSV(this.definitionString, ";", "int", "int", "int", "int")
+        this.countryDefinitionString = fs.readFileSync(`${path}/common/countries.txt`, "utf-8").toString()
+        this.countryDefinitions = Bespoke.parseBespoke(this.countryDefinitionString)
         this.mapPath = `${path}/map/provinces.bmp`
         this.provincesPath = `${path}/history/provinces`
         this.provinces = []
@@ -27,8 +28,8 @@ module.exports = class Mod {
         for (let [tag, countryPathContainer] of Object.entries(this.countryDefinitions)) {
             const countryPath = countryPathContainer[0]
             if (fs.existsSync(`${path}/common/${countryPath}`)) {
-                const countryDataString = fs.readFileSync(`${path}/common/${countryPath}`).toString()
-                const country = new Country(tag, `${path}/common/${countryPath}`, parser.parseBespoke(countryDataString))
+                const countryDataString = fs.readFileSync(`${path}/common/${countryPath}`, "utf-8").toString()
+                const country = new Country(tag, `${path}/common/${countryPath}`, Bespoke.parseBespoke(countryDataString))
                 this.countries.push(country)
             }
         }
@@ -55,7 +56,7 @@ module.exports = class Mod {
             for (let j = 0; j < provincePaths.length; j++) {
                 const provincePath = provincePaths[j]
                 const provinceId = parseInt(provincePath.match(/\d+/g))
-                const provinceString = fs.readFileSync(`${this.provincesPath}/${provinceFolderPath}/${provincePath}`).toString()
+                const provinceString = fs.readFileSync(`${this.provincesPath}/${provinceFolderPath}/${provincePath}`, "utf-8").toString()
                 let provinceColor = []
                 for (let i = 0; i < this.definitions.length; i++) {
                     const definition = this.definitions[i]
@@ -64,7 +65,7 @@ module.exports = class Mod {
                         break
                     }
                 }
-                const province = new Province(provinceId, `${this.provincesPath}/${provinceFolderPath}/${provincePath}`, parser.parseBespoke(provinceString), provinceColor)
+                const province = new Province(provinceId, `${this.provincesPath}/${provinceFolderPath}/${provincePath}`, Bespoke.parseBespoke(provinceString), provinceColor)
                 province.country = this.getCountryFromProvince(province)
                 if (province.data.add_core) {
                     for (let i = 0; i < province.data.add_core.length; i++) {
@@ -159,11 +160,11 @@ module.exports = class Mod {
     save() {
         for (let i = 0; i < this.provinces.length; i++) {
             const province = this.provinces[i]
-            fs.writeFileSync(province.path, parser.toBespoke(province.data))
+            fs.writeFileSync(province.path, Bespoke.toBespoke(province.data))
         }
         for (let i = 0; i < this.countries.length; i++) {
             const country = this.countries[i]
-            fs.writeFileSync(country.path, parser.toBespoke(country.data))
+            fs.writeFileSync(country.path, Bespoke.toBespoke(country.data))
         }
     }
 }

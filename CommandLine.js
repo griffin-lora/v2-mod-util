@@ -1,4 +1,5 @@
 const { terminal } = require("terminal-kit")
+const fs = require("fs")
 
 const programs = {
     help: require("./programs/help"),
@@ -12,10 +13,12 @@ const programs = {
     create_mod: require("./programs/create_mod"),
     create_province_owner_map: require("./programs/create_province_owner_map"),
     create_province_core_map: require("./programs/create_province_core_map"),
+    toggle_external: require("./programs/toggle_external")
 }
 
 module.exports = class CommandLine {
     constructor() {
+        this.externalExecution = false
         this.environment = {}
         this.isRunningCommand = false
         this.ranCommandIndex = 0
@@ -68,10 +71,28 @@ module.exports = class CommandLine {
                 })
             }
         } else {
-            terminal.red(`The program ${program} does not exist.`)
-            return new Promise((resolve) => {
-                resolve()
-            })
+            if (fs.existsSync("programs")) {
+                if (fs.existsSync(`programs/${program}.js`)) {
+                    if (this.externalExecution) {
+                        return require(`programs/${program}`)(this, ...args)
+                    } else {
+                        terminal.red(`External execution could be dangerous. Toggle external execution via the toggle_external command.`)
+                        return new Promise((resolve) => {
+                            resolve()
+                        })
+                    }
+                } else {
+                    terminal.red(`The command ${program} does not exist.`)
+                    return new Promise((resolve) => {
+                        resolve()
+                    })
+                }
+            } else {
+                terminal.red(`The command ${program} does not exist.`)
+                return new Promise((resolve) => {
+                    resolve()
+                })
+            }
         }
     }
 }
