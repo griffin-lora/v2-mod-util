@@ -21,30 +21,15 @@ module.exports = class CommandLine {
         this.externalExecution = false
         this.environment = {}
         this.isRunningCommand = false
-        this.ranCommandIndex = 0
         this.ranCommands = []
         this.requestInput()
-        terminal.on("key", name => {
-            if (!this.isRunningCommand) {
-                if (name == "UP") {
-                    if (this.ranCommandIndex > 0) {
-                        this.ranCommandIndex--
-                    }
-                } else if (name == "DOWN") {
-                    if (this.ranCommandIndex < this.ranCommandIndex) {
-                        this.ranCommandIndex++
-                    }
-                }
-            }
-        })
     }
     requestInput() {
         return new Promise(resolve => {
             terminal("> ")
-            terminal.inputField((_, input) => {
+            terminal.inputField({ history: this.ranCommands }, (_, input) => {
                 this.isRunningCommand = true
                 this.ranCommands.push(input)
-                this.ranCommandIndex = this.ranCommands.length
                 terminal("\n")
                 const split = input.split(" ")
                 const params = []
