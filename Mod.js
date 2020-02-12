@@ -3,6 +3,7 @@ const Bespoke = require("./Bespoke")
 const CSV = require("./CSV")
 const Province = require("./Province")
 const Country = require("./Country")
+const iconv = require("iconv-lite")
 
 function clamp(num, min, max) {
     if (num < min) {
@@ -17,9 +18,9 @@ module.exports = class Mod {
     constructor(name, path) {
         this.name = name
         this.path = path
-        this.definitionString = fs.readFileSync(`${path}/map/definition.csv`, "utf-8").toString()
+        this.definitionString = iconv.decode(fs.readFileSync(`${path}/map/definition.csv`), "latin1")
         this.definitions = CSV.parseCSV(this.definitionString, ";", "int", "int", "int", "int")
-        this.countryDefinitionString = fs.readFileSync(`${path}/common/countries.txt`, "utf-8").toString()
+        this.countryDefinitionString = iconv.decode(fs.readFileSync(`${path}/common/countries.txt`), "latin1")
         this.countryDefinitions = Bespoke.parseBespoke(this.countryDefinitionString)
         this.mapPath = `${path}/map/provinces.bmp`
         this.provincesPath = `${path}/history/provinces`
@@ -28,7 +29,7 @@ module.exports = class Mod {
         for (let [tag, countryPathContainer] of Object.entries(this.countryDefinitions)) {
             const countryPath = countryPathContainer[0]
             if (fs.existsSync(`${path}/common/${countryPath}`)) {
-                const countryDataString = fs.readFileSync(`${path}/common/${countryPath}`, "utf-8").toString()
+                const countryDataString = iconv.decode(fs.readFileSync(`${path}/common/${countryPath}`), "latin1")
                 const country = new Country(tag, `${path}/common/${countryPath}`, Bespoke.parseBespoke(countryDataString))
                 this.countries.push(country)
             }
@@ -56,7 +57,7 @@ module.exports = class Mod {
             for (let j = 0; j < provincePaths.length; j++) {
                 const provincePath = provincePaths[j]
                 const provinceId = parseInt(provincePath.match(/\d+/g))
-                const provinceString = fs.readFileSync(`${this.provincesPath}/${provinceFolderPath}/${provincePath}`, "utf-8").toString()
+                const provinceString = iconv.decode(fs.readFileSync(`${this.provincesPath}/${provinceFolderPath}/${provincePath}`), "latin1")
                 let provinceColor = []
                 for (let i = 0; i < this.definitions.length; i++) {
                     const definition = this.definitions[i]
