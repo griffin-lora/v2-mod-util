@@ -19,7 +19,7 @@ module.exports = function(commandLine, ...args) {
                 let red = pixelData[i + 3]
                 let green = pixelData[i + 2]
                 let blue = pixelData[i + 1]
-                if (red != 0 && green != 0 && blue != 0) {
+                if (!(red == 0 && green == 0 && blue == 0)) {
                     const province = mod.getProvinceFromColor([provinceRed, provinceGreen, provinceBlue])
                     if (province && !handledProvinces[province.id]) {
                         if (red == 128 && green == 128 && blue == 128) {
