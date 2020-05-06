@@ -161,38 +161,53 @@ module.exports = {
         }
         return output
     },
-    toBespoke: function(bespokeObject, level) {
+    toBespoke: function(bespokeObject, priority, level) {
         if (!level) {
             level = 0
         }
         let output = ""
+        if (priority) {
+            for (let i = 0; i < priority.length; i++) {
+                const key = priority[i]
+                const values = bespokeObject[key]
+                if (values) {
+                    output = this.valuesToBespoke(key, values, output, priority, level)
+                }
+            }
+        }
         for (let [key, values] of Object.entries(bespokeObject)) {
-            for (let i = 0; i < values.length; i++) {
-                const value = values[i]
-                if (value) {
-                    let valueString
-                    if (Array.isArray(value)) {
-                        valueString = "{ "
-                        for (let j = 0; j < value.length; j++) {
-                            if (typeof(value[j]) == "string" && value[j].includes(" ")) {
-                                valueString += "\"" + value[j] + "\" "
-                            } else {
-                                valueString += value[j] + " "
-                            }
-                        }
-                        valueString += "}"
-                    } else if (typeof(value) == "object") {
-                        valueString = "{\n" + this.toBespoke(value, level + 1) + `${"\t".repeat(level)}}`
-                    } else {
-                        if (typeof(value) == "string" && value.includes(" ")) {
-                            valueString = "\"" + value + "\""
+            if (!priority || !priority.includes(key)) {
+                output = this.valuesToBespoke(key, values, output, priority, level)
+            }
+        }
+        return output
+    },
+    valuesToBespoke: function(key, values, output, priority, level) {
+        for (let i = 0; i < values.length; i++) {
+            const value = values[i]
+            if (value) {
+                let valueString
+                if (Array.isArray(value)) {
+                    valueString = "{ "
+                    for (let j = 0; j < value.length; j++) {
+                        if (typeof(value[j]) == "string" && value[j].includes(" ")) {
+                            valueString += "\"" + value[j] + "\" "
                         } else {
-                            valueString = value
+                            valueString += value[j] + " "
                         }
                     }
-                    if (value) {
-                        output = output + `${"\t".repeat(level)}${key} = ${valueString}\n`
+                    valueString += "}"
+                } else if (typeof(value) == "object") {
+                    valueString = "{\n" + this.toBespoke(value, priority, level + 1) + `${"\t".repeat(level)}}`
+                } else {
+                    if (typeof(value) == "string" && value.includes(" ")) {
+                        valueString = "\"" + value + "\""
+                    } else {
+                        valueString = value
                     }
+                }
+                if (value) {
+                    output = output + `${"\t".repeat(level)}${key} = ${valueString}\n`
                 }
             }
         }

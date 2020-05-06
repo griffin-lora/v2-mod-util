@@ -161,7 +161,8 @@ module.exports = class Mod {
     save() {
         for (let i = 0; i < this.provinces.length; i++) {
             const province = this.provinces[i]
-            fs.writeFileSync(province.path, Bespoke.toBespoke(province.data))
+            const bespokeString = Bespoke.toBespoke(province.data, [ "owner", "controller" ])
+            fs.writeFileSync(province.path, bespokeString)
         }
         for (let i = 0; i < this.countries.length; i++) {
             const country = this.countries[i]
