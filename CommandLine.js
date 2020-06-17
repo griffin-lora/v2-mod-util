@@ -13,6 +13,7 @@ const programs = {
     create_mod: require("./programs/create_mod"),
     create_province_owner_map: require("./programs/create_province_owner_map"),
     create_province_core_map: require("./programs/create_province_core_map"),
+    remove_ahd: require("./programs/remove_ahd"),
     toggle_external: require("./programs/toggle_external")
 }
 
