@@ -154,8 +154,17 @@ module.exports = class Mod {
             }
         }
     }
-    modifyMapData() {
-        
+    isCore(province, tag) {
+        const cores = province.data.add_core
+        if (cores) {
+            for (let i = 0; i < cores.length; i++) {
+                const coreTag = cores[i]
+                if (coreTag == tag) {
+                    return true
+                }
+            }
+        }
+        return false
     }
     save() {
         for (let i = 0; i < this.provinces.length; i++) {
