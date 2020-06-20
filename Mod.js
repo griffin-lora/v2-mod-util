@@ -14,6 +14,10 @@ function clamp(num, min, max) {
     return num
 }
 
+const metadataSchema = {
+    cultureColors: {}
+}
+
 module.exports = class Mod {
     constructor(name, path) {
         this.name = name
@@ -25,6 +29,7 @@ module.exports = class Mod {
         this.mapPath = `${path}/map/provinces.bmp`
         this.provincesPath = `${path}/history/provinces`
         this.popPath = `${path}/history/pops/1836.1.1`
+        this.metadataPath = `${path}/mod_util_metadata.json`
         this.cultureColors = []
         this.provinces = []
         this.countries = []
@@ -121,6 +126,11 @@ module.exports = class Mod {
                 }
             }
         }
+
+        if (!fs.existsSync(this.metadataPath)) {
+            fs.writeFileSync(this.metadataPath, JSON.stringify(metadataSchema))
+        }
+        this.metadata = JSON.parse(fs.readFileSync(this.metadataPath).toString())
     }
     findCountryColor(country, inp) {
         if (country.data.color[0][0]) {
@@ -212,6 +222,7 @@ module.exports = class Mod {
         for (let [ popPath, popGroup ] of popGroupPathMapEntries) {
             fs.writeFileSync(`${this.popPath}/${popPath}`, popGroup)
         }
+        fs.writeFileSync(this.metadataPath, JSON.stringify(this.metadata))
     }
     parseCultureString(cultureString) {
         const culturePercentages = []
@@ -255,6 +266,30 @@ module.exports = class Mod {
             }
         }
         this.popGroupPathMap[popPath] = Bespoke.toBespoke(popGroupData)
-        console.log(this.popGroupPathMap[popPath])
+    }
+    setCultureColor(cultureString, red, green, blue) {
+        const cultureColors = this.metadata.cultureColors
+        red = red.toString()
+        green = green.toString()
+        blue = blue.toString()
+
+        if (!cultureColors[red]) {
+            cultureColors[red] = {}
+        }
+        if (!cultureColors[red][green]) {
+            cultureColors[red][green] = {}
+        }
+        cultureColors[red][green][blue] = this.parseCultureString(cultureString)
+    }
+    getCultureFromColor(red, green, blue) {
+        red = red.toString()
+        green = green.toString()
+        blue = blue.toString()
+        const cultureColors = this.metadata.cultureColors
+        if (cultureColors[red]) {
+            if (cultureColors[red][green]) {
+                return cultureColors[red][green][blue]
+            }
+        }
     }
 }

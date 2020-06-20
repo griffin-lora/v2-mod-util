@@ -13,9 +13,12 @@ const programs = {
     create_mod: require("./programs/create_mod"),
     create_province_owner_map: require("./programs/create_province_owner_map"),
     create_province_core_map: require("./programs/create_province_core_map"),
+    create_blank_map: require("./programs/create_blank_map"),
     remove_ahd: require("./programs/remove_ahd"),
     remove_colonial_cores: require("./programs/remove_colonial_cores"),
     set_province_culture: require("./programs/set_province_culture"),
+    set_province_culture_map: require("./programs/set_province_culture_map"),
+    set_culture_color: require("./programs/set_culture_color"),
     toggle_external: require("./programs/toggle_external")
 }
 
