@@ -3,6 +3,7 @@ const Bespoke = require("./Bespoke")
 const CSV = require("./CSV")
 const Province = require("./Province")
 const Country = require("./Country")
+const Pop = require("./Pop")
 
 function clamp(num, min, max) {
     if (num < min) {
@@ -23,6 +24,8 @@ module.exports = class Mod {
         this.countryDefinitions = Bespoke.parseBespoke(this.countryDefinitionString)
         this.mapPath = `${path}/map/provinces.bmp`
         this.provincesPath = `${path}/history/provinces`
+        this.popPath = `${path}/history/pops/1836.1.1`
+        this.cultureColors = []
         this.provinces = []
         this.countries = []
         for (let [tag, countryPathContainer] of Object.entries(this.countryDefinitions)) {
@@ -88,6 +91,35 @@ module.exports = class Mod {
                 this.provinceColorMap[color[0]][color[1]] = []
             }
             this.provinceColorMap[color[0]][color[1]][color[2]] = province
+        }
+
+        this.popGroupPathMap = {}
+        const popFilePaths = fs.readdirSync(this.popPath)
+        for (let i = 0; i < popFilePaths.length; i++) {
+            const popFilePath = popFilePaths[i]
+            const popString = fs.readFileSync(`${this.popPath}/${popFilePath}`).toString()
+            this.popGroupPathMap[popFilePath] = popString
+        }
+
+        this.popPathProvinceMap = []
+        const popGroupPathMapEntries = Object.entries(this.popGroupPathMap)
+        for (let i = 0; i < this.provinces.length; i++) {
+            const province = this.provinces[i]
+            let shouldBreak = false
+            for (let [ popPath, popGroup ] of popGroupPathMapEntries) {
+                const popGroupLines = popGroup.match(/[^\r\n]+/g)
+                for (let j = 0; j < popGroupLines.length; j++) {
+                    const line = popGroupLines[j]
+                    if (line == `${province.id} = {`) {
+                        this.popPathProvinceMap[province.id] = popPath
+                        shouldBreak = true
+                        break
+                    }
+                }
+                if (shouldBreak) {
+                    break
+                }
+            }
         }
     }
     findCountryColor(country, inp) {
@@ -176,5 +208,53 @@ module.exports = class Mod {
             const country = this.countries[i]
             fs.writeFileSync(country.path, Bespoke.toBespoke(country.data))
         }
+        const popGroupPathMapEntries = Object.entries(this.popGroupPathMap)
+        for (let [ popPath, popGroup ] of popGroupPathMapEntries) {
+            fs.writeFileSync(`${this.popPath}/${popPath}`, popGroup)
+        }
+    }
+    parseCultureString(cultureString) {
+        const culturePercentages = []
+        const culturePercentageStrings = cultureString.split(",")
+        for (let i = 0; i < culturePercentageStrings.length; i++) {
+            const culturePercentageString = culturePercentageStrings[i]
+            const [ percentage, culture ] = culturePercentageString.split("%")
+            culturePercentages.push([ percentage / 100, culture ])
+        }
+        return culturePercentages
+    }
+    setProvinceCultures(province, cultures) {
+        const provinceId = province.id
+        const popPath = this.popPathProvinceMap[provinceId]
+        const popGroup = this.popGroupPathMap[popPath]
+        const popGroupData = Bespoke.parseBespoke(popGroup)
+        for (let [ popProvinceId, popsDataContainer ] of Object.entries(popGroupData)) {
+            if (parseInt(popProvinceId) == provinceId) {
+                const popsData = popsDataContainer[0]
+                const pops = []
+                for (let [ popType, popsOfSameType ] of Object.entries(popsData)) {
+                    for (let i = 0; i < popsOfSameType.length; i++) {
+                        const popData = popsOfSameType[i]
+                        const pop = new Pop(popType, popData)
+                        pops.push(pop)
+                    }
+                }
+                let startIndex = 0
+                for (let i = 0; i < cultures.length; i++) {
+                    const [ percentage, culture ] = cultures[i]
+                    const popCount = Math.round(percentage * pops.length)
+                    for (let j = startIndex; j < (startIndex + popCount); j++) {
+                        const pop = pops[j]
+                        if (pop) {
+                            pop.data.culture[0] = culture
+                        }
+                    }
+                    startIndex = (startIndex + popCount)
+                }
+                break
+            }
+        }
+        this.popGroupPathMap[popPath] = Bespoke.toBespoke(popGroupData)
+        console.log(this.popGroupPathMap[popPath])
     }
 }

@@ -15,6 +15,7 @@ const programs = {
     create_province_core_map: require("./programs/create_province_core_map"),
     remove_ahd: require("./programs/remove_ahd"),
     remove_colonial_cores: require("./programs/remove_colonial_cores"),
+    set_province_culture: require("./programs/set_province_culture"),
     toggle_external: require("./programs/toggle_external")
 }
 
