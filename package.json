@@ -8,6 +8,7 @@
     "fs-extra": "^8.1.0",
     "get-pixels": "^3.3.2",
     "iconv-lite": "^0.5.1",
+    "nexe": "^3.3.7",
     "terminal-kit": "^1.32.3",
     "utf8": "^3.0.0"
   }

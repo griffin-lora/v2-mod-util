@@ -19,6 +19,9 @@ const programs = {
     set_province_culture: require("./programs/set_province_culture"),
     set_province_culture_map: require("./programs/set_province_culture_map"),
     set_culture_color: require("./programs/set_culture_color"),
+    remove_casus_belli: require("./programs/remove_casus_belli"),
+    clear_world: require("./programs/clear_world"),
+    create_country: require("./programs/create_country"),
     toggle_external: require("./programs/toggle_external")
 }
 
